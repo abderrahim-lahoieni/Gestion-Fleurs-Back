@@ -127,10 +127,12 @@ class Utilisateur(models.Model):
     id_user = models.AutoField(primary_key=True)    
     PROPRIETAIRE = 1
     VENDEUR = 2
+    ABONNE =3
     
     TYPE_CHOICES = [
         (PROPRIETAIRE, 'Propriétaire'),
         (VENDEUR, 'Vendeur'),
+        (ABONNE, 'Abonne'),
     ]
 
     type = models.IntegerField(choices=TYPE_CHOICES, default=PROPRIETAIRE)
