@@ -1,0 +1,46 @@
+{% extends 'home.html' %}
+
+{% block head%}
+	<script type="text/javascript">
+       $(document).ready(function() {
+			$('#myTable').DataTable();
+		} );
+    </script>
+{% endblock%}
+
+{% block content %}
+  {% if fleurs  %}
+  <table id="myTable">
+      <thead>
+			<tr>
+				<th>Nom</th>
+				<th>Origine</th>
+				<th>Prix</th>
+				<th>Remise</th>
+				<th>QT stock</th>
+				<th>famille</th>
+				<th>Categorie</th>
+				<th>Description</th>
+				<th>Image</th>                
+			</tr>
+	  </thead>
+	  <tbody>
+		{% for ft in fleurs  %}
+		<tr>
+			<td>{{ft.nom}}</td>
+			<td>{{ft.Origine}}</td>
+			<td>{{ft.prix}}</td>            
+			<td>{{ft.remise}}</td>            
+			<td>{{ft.qt_stock}}</td>            
+			<td>{{ft.famille.nom}}</td> 
+			<td>{{ft.categorie}}</td> 
+			<td>{{ft.description}}</td>                                   
+			<td><img src="{{ ft.photo.url }}" width="300" height="200"></td>            
+		</tr>
+		{% endfor %}
+	  </tbody>
+  </table>
+  {% else %}
+    <p>Nothing on the DB. </p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "home.html" %}
+{% load crispy_forms_tags %}
+{% block head %}
+<title>Intern - 
+    {% if islogin %}
+     Login
+     {% else %}
+       {{formTitle}}
+    {% endif %}
+</title>
+
+{% endblock %}
+
+{% block projectBar %}
+{% endblock %}
+
+{% block content %}
+<div  class="card roomy default">
+    <div class="card mr-auto ml-auto ">
+     <div class="card-header-body">
+        <div class="card-header" >
+            {% if islogin %}
+                <h3>LogIn </h3>
+            {% else %}
+                <h3>{{formTitle}}</h3>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" >
+              {% csrf_token %}
+              {{ form|crispy }}
+                {% if islogin %}
+                   <button type="submit" class="btn fillX">login</button>
+                {% else %}
+                        <button id="btnSubmit" type="submit" class="btn icon">{{btntext}}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+       
+    });
+</script>
+{% endblock %}
