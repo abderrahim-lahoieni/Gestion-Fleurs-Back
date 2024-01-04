@@ -52,7 +52,7 @@ class Fichesoin(models.Model):
     exposition_lumiere = models.TextField(blank=True, null=True)
     temperature_ideal = models.TextField(blank=True, null=True)
     engrais_commandes = models.TextField(blank=True, null=True)
-    id_fleur = models.OneToOneField('Fleur', models.DO_NOTHING, db_column='id_fleur', blank=True, null=True)
+    id_fleur = models.OneToOneField('Fleur', models.DO_NOTHING, db_column='id_fleur')
 
     class Meta:
         db_table = 'fichesoin'
