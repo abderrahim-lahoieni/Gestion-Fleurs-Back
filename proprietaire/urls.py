@@ -12,5 +12,13 @@ urlpatterns = [
     path('fichesoin/delete/<int:id>/', views.deleteFicheSoin, name='deletefichesoin'),
     path('fichesoin/list/', views.FichesSoinList, name='fichesoinList'),    
 
+    path('famille/create/', views.cuFamille, name='createfamille'),
+    path('famille/update/<int:id>/', views.cuFamille, name='updatefamille'),
+
+    path('magasin/create/', views.cuMagasin, name='create_magasin'),
+    path('magasin/list/', views.MagasinList, name='create_magasin'),
+    path('magasin/update/<int:id>/', views.cuMagasin, name='update_magasin'),
+    path('magasin/delete/<int:id>/', views.deleteMagasin, name='delete_magasin'),
+
 
 ]
