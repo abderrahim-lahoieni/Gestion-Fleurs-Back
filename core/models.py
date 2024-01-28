@@ -6,6 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
 
 
 class Abonne(models.Model):
@@ -34,7 +35,7 @@ class Bouquet(models.Model):
 
 class Commande(models.Model):
     id_commande = models.AutoField(primary_key=True)
-    date_commande = models.DateField()
+    date_commande = models.DateField(auto_now_add=True)
     id_commandant = models.ForeignKey('Utilisateur', models.DO_NOTHING, db_column='id_commandant', blank=True, null=True)
     telephone = models.CharField(max_length=255, blank=True, null=True)
     statut = models.CharField(max_length=255, blank=True, null=True)
@@ -109,7 +110,7 @@ class Magasin(models.Model):
     email = models.CharField(max_length=255)
 
     class Meta:
-        db_table = 'magasin'
+        db_table = 'magasin' 
 
 
 class Parfum(models.Model):
@@ -123,21 +124,26 @@ class Parfum(models.Model):
         db_table = 'parfum'
 
 
-class Utilisateur(models.Model):
+class Utilisateur(AbstractBaseUser):
     id_user = models.AutoField(primary_key=True)    
     PROPRIETAIRE = 1
     VENDEUR = 2
-    ABONNE =3
+    ABONNE = 3
     
     TYPE_CHOICES = [
         (PROPRIETAIRE, 'Propriétaire'),
         (VENDEUR, 'Vendeur'),
-        (ABONNE, 'Abonne'),
+        (ABONNE, 'Abonne')
     ]
 
     type = models.IntegerField(choices=TYPE_CHOICES, default=PROPRIETAIRE)
     username = models.CharField(unique=True, max_length=255)
     password = models.CharField(unique=True, max_length=255)
+    reset_code = models.CharField(max_length=4, null=True, blank=True)
+    reset_code_expiry = models.DateTimeField(null=True, blank=True)
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
 
     class Meta:
         db_table = 'utilisateur'
