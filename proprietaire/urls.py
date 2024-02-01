@@ -14,11 +14,24 @@ urlpatterns = [
 
     path('famille/create/', views.cuFamille, name='createfamille'),
     path('famille/update/<int:id>/', views.cuFamille, name='updatefamille'),
+    path('famille/list/', views.FamilleList, name='list_famille'),
+    path('famille/delete/<int:id>/', views.deleteFamille, name='delete_famille'),
 
     path('magasin/create/', views.cuMagasin, name='create_magasin'),
-    path('magasin/list/', views.MagasinList, name='create_magasin'),
     path('magasin/update/<int:id>/', views.cuMagasin, name='update_magasin'),
-    path('magasin/delete/<int:id>/', views.deleteMagasin, name='delete_magasin'),
+#    path('magazin/details/', views.DetailMagasin, name='details_magasin'),
+
+
+
+    path('parfum/create/', views.cuParfum, name='create_parfum'),
+    path('parfum/list/', views.ParfumList, name='create_parfum'),
+    path('parfum/update/<int:id>/', views.cuParfum, name='update_parfum'),
+    path('parfum/delete/<int:id>/', views.deletParfum, name='delete_parfum'),
+
+    path('bouquet/create/', views.cuBouquet, name='create_bouquet'),
+    path('bouquet/list/', views.BouquetList, name='create_bouquet'),
+    path('bouquet/update/<int:id>/', views.cuBouquet, name='update_bouquet'),
+    path('bouquet/delete/<int:id>/', views.deleteBouquet, name='delete_bouquet'),        
 
 
 ]

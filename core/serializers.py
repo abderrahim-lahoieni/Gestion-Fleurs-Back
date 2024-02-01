@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Fleur, Fichesoin, Famille, Magasin, Parfum
+from .models import Fleur, Fichesoin, Famille, Magasin, Parfum, Bouquet
 
 class FleurSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,3 +25,8 @@ class ParfumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Parfum
         fields = '__all__'                        
+
+class BouquetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bouquet
+        fields = '__all__'                                

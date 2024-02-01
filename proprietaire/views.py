@@ -1,15 +1,16 @@
 from django.shortcuts import get_object_or_404, render
 from core.models import Fleur, Famille,Fichesoin, Magasin, Parfum, Bouquet
-from .forms import FleurForm,FichesoinForm, FamilleForm, MagasinForm, ParfumForm
+from .forms import FleurForm,FichesoinForm, FamilleForm, MagasinForm, ParfumForm, BouquetForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from core.serializers import FleurSerializer,FichesoinSerializer, FamilleSerializer, Magasinserializer
+from core.serializers import FleurSerializer,FichesoinSerializer, FamilleSerializer, Magasinserializer, ParfumSerializer, BouquetSerializer
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import api_view
 
 # create and update
 @csrf_exempt
+@api_view(['POST'])
 def cuFleur(request, id=None):
     response_data = {'status': 'error', 'message': 'Erreur lors du traitement de la requête.'}
 
@@ -43,6 +44,7 @@ def FleursList(request):
     return Response(content, content_type='application/json')
 
 @csrf_exempt
+@api_view(['DELETE'])
 def deleteFleur(request, id):
     fleur = get_object_or_404(Fleur, pk=id)
 
@@ -56,6 +58,7 @@ def deleteFleur(request, id):
 
 # create & update fiche soin
 @csrf_exempt
+@api_view(['POST'])
 def cuFicheSoin(request, id=None):
     response_data = {'status': 'error', 'message': 'Erreur lors du traitement de la requête.'}
 
@@ -82,7 +85,6 @@ def cuFicheSoin(request, id=None):
         response_data['errors'] = form.errors
     return JsonResponse(response_data)
 
-
 @api_view(['GET'])
 def FichesSoinList(request):
     fichesSoin = Fichesoin.objects.all()
@@ -90,6 +92,7 @@ def FichesSoinList(request):
     content = JSONRenderer().render(serializer.data)  # Serialize the data using JSONRenderer
     return Response(content, content_type='application/json')
 
+@api_view(['DELETE'])
 @csrf_exempt
 def deleteFicheSoin(request, id):
     fiche_soin = get_object_or_404(Fichesoin, pk=id)
@@ -105,6 +108,7 @@ def deleteFicheSoin(request, id):
 
 # create and update
 @csrf_exempt
+@api_view(['POST'])
 def cuFamille(request, id=None):
     response_data = {'status': 'error', 'message': 'Erreur lors du traitement de la requête.'}
 
@@ -128,6 +132,26 @@ def cuFamille(request, id=None):
          else:
              response_data['message'] = 'Erreur lors de la création  de la famille. Veuillez vérifier les informations fournies.'
         response_data['errors'] = form.errors
+    return JsonResponse(response_data)
+
+@api_view(['GET'])
+def FamilleList(request):
+    famille = Famille.objects.all()
+    serializer = FamilleSerializer(famille, many=True)
+    content = JSONRenderer().render(serializer.data)  # Serialize the data using JSONRenderer
+    return Response(content, content_type='application/json')
+
+@api_view(['DELETE'])
+@csrf_exempt
+def deleteFamille(request, id):
+    famille = get_object_or_404(Famille, pk=id)
+
+    try:
+        famille.delete()
+        response_data = {'status': 'success', 'message': 'La famille a été supprimée avec succès.'}
+    except Exception as e:
+        response_data = {'status': 'error', 'message': f"Erreur lors mise a jour de la famille : {str(e)}"}
+
     return JsonResponse(response_data)
 
 @api_view(['POST'])
@@ -157,22 +181,97 @@ def cuMagasin(request, id=None):
     return JsonResponse(response_data)
 
 
+@api_view(['POST'])
+@csrf_exempt
+def cuBouquet(request, id=None):
+    response_data = {'status': 'error', 'message': 'Erreur lors du traitement de la requête.'}
+
+    if id:
+        bouquet_instance = get_object_or_404(Bouquet, pk=id)
+    else:
+        bouquet_instance = Bouquet()
+
+    if request.method == 'POST':
+        form = BouquetForm(request.POST, request.FILES,instance=bouquet_instance)
+        if form.is_valid():
+            form.save()
+            if id:
+                response_data = {'status': 'success', 'message': 'Le bouquet a été mis à jour avec succès.'}
+            else:
+                response_data = {'status': 'success', 'message': 'Le bouquet a été créé avec succès.'}
+        else:
+            if id:
+                response_data['message'] = 'Erreur lors de la mise à jour du bouquet. Veuillez vérifier les informations fournies.'
+            else:
+                response_data['message'] = 'Erreur lors de la création du bouquet. Veuillez vérifier les informations fournies.'
+                response_data['errors'] = form.errors
+    return JsonResponse(response_data)
+
+
 @api_view(['GET'])
-def MagasinList(request):
-    fichesSoin = Magasin.objects.all()
-    serializer = Magasinserializer(fichesSoin, many=True)
+def BouquetList(request):
+    bouquet = Bouquet.objects.all()
+    serializer = BouquetSerializer(bouquet, many=True)
     content = JSONRenderer().render(serializer.data)  # Serialize the data using JSONRenderer
     return Response(content, content_type='application/json')
 
 @api_view(['DELETE'])
 @csrf_exempt
-def deleteMagasin(request, id):
-    magasin = get_object_or_404(Magasin, pk=id)
+def deleteBouquet(request, id):
+    bouquet = get_object_or_404(Bouquet, pk=id)
 
     try:
-        magasin.delete()
-        response_data = {'status': 'success', 'message': 'Le magasin a été supprimée avec succès.'}
+        bouquet.delete()
+        response_data = {'status': 'success', 'message': 'Le bouquet a été supprimée avec succès.'}
     except Exception as e:
-        response_data = {'status': 'error', 'message': f"Erreur lors du magasin. : {str(e)}"}
+        response_data = {'status': 'error', 'message': f"Erreur lors du bouquet. : {str(e)}"}
+
+    return JsonResponse(response_data)
+
+
+@api_view(['POST'])
+@csrf_exempt
+def cuParfum(request, id=None):
+    response_data = {'status': 'error', 'message': 'Erreur lors du traitement de la requête.'}
+
+    if id:
+        parfum_instance = get_object_or_404(Parfum, pk=id)
+    else:
+        parfum_instance = Parfum()
+
+    if request.method == 'POST':
+        form = ParfumForm(request.POST, request.FILES,instance=parfum_instance)
+        if form.is_valid():
+            form.save()
+            if id:
+                response_data = {'status': 'success', 'message': 'Le parfum a été mis à jour avec succès.'}
+            else:
+                response_data = {'status': 'success', 'message': 'Le parfum a été créé avec succès.'}
+        else:
+            if id:
+                response_data['message'] = 'Erreur lors de la mise à jour du parfum. Veuillez vérifier les informations fournies.'
+            else:
+                response_data['message'] = 'Erreur lors de la création du parfum. Veuillez vérifier les informations fournies.'
+                response_data['errors'] = form.errors
+    return JsonResponse(response_data)
+
+
+@api_view(['GET'])
+def ParfumList(request):
+    parfum = Parfum.objects.all()
+    serializer = BouquetSerializer(parfum, many=True)
+    content = JSONRenderer().render(serializer.data)  # Serialize the data using JSONRenderer
+    return Response(content, content_type='application/json')
+
+@api_view(['DELETE'])
+@csrf_exempt
+def deletParfum(request, id):
+    parfum = get_object_or_404(Parfum, pk=id)
+
+    try:
+        parfum.delete()
+        response_data = {'status': 'success', 'message': 'Le parfum a été supprimée avec succès.'}
+    except Exception as e:
+        response_data = {'status': 'error', 'message': f"Erreur lors du parfum. : {str(e)}"}
 
     return JsonResponse(response_data)

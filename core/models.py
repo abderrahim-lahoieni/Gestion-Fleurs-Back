@@ -40,17 +40,36 @@ class Abonne(models.Model):
 
 class Bouquet(models.Model):
     id_bouquet = models.AutoField(primary_key=True)
+    code = models.CharField(max_length=255, blank=True, null=True)
     nom = models.CharField(unique=True, max_length=255)
-    image = models.BinaryField()
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     remise = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
+    photo = models.ImageField(upload_to='uploads/Bouquet/')    
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            # Find the latest code in the database
+            latest_code = Bouquet.objects.order_by('-id_bouquet').first()
+            if latest_code:
+                latest_code = latest_code.code
+                # Extract the numeric part of the code and increment it
+                code_number = int(''.join(filter(str.isdigit, latest_code)))
+                code_number += 1
+            else:
+                # If there are no existing instances, start with 0
+                code_number = 1
+
+            # Format the code and save it
+            self.code = f'BQ{code_number:010d}'
+        super(Bouquet, self).save(*args, **kwargs)   
 
     class Meta:
         db_table = 'bouquet'
 
 class Famille(models.Model):
-    nom = models.CharField( primary_key=True,max_length=255)
+    id = models.AutoField(primary_key=True)
+    nom = models.CharField(max_length=255)
 
     def __str__(self):
         return self.nom 
@@ -61,12 +80,12 @@ class Famille(models.Model):
 
 class Fleur(models.Model):
     id_fleur = models.AutoField(primary_key=True)
-    code = models.CharField(max_length=255, unique=True)
+    code = models.CharField(max_length=255,unique=True,blank=True,null=True)
     nom = models.CharField(max_length=255)
     origine = models.CharField(max_length=255, blank=True, null=True)
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     remise = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    photo = models.ImageField(upload_to='uploads/')
+    photo = models.ImageField(upload_to='uploads/fleur/')
     qt_stock = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     id_famille = models.ForeignKey(Famille, models.DO_NOTHING, db_column='famille', blank=True, null=True)
@@ -81,11 +100,7 @@ class Fleur(models.Model):
 
     def __str__(self):
         return f"{self.nom} de Catégorie {self.categorie}"
-        
-    class Meta:
-        db_table = 'fleur'
-        unique_together = (('nom', 'categorie'),)
-
+    
     def save(self, *args, **kwargs):
         if not self.code:
             # Find the latest code in the database
@@ -97,12 +112,17 @@ class Fleur(models.Model):
                 code_number += 1
             else:
                 # If there are no existing instances, start with 0
-                code_number = 0
+                code_number = 1
 
             # Format the code and save it
-            self.code = f'FL{code_number:03d}'
+            self.code = f'FL{code_number:010d}'
 
-        super(Fleur, self).save(*args, **kwargs)
+        super(Fleur, self).save(*args, **kwargs)      
+        
+    class Meta:
+        db_table = 'fleur'
+        unique_together = (('nom', 'categorie'),)
+
 
 class Fichesoin(models.Model):
     id_fichesoin = models.AutoField(primary_key=True)    
@@ -161,10 +181,30 @@ class Magasin(models.Model):
 
 class Parfum(models.Model):
     id_parfum= models.AutoField(primary_key=True)    
+    code = models.CharField(max_length=255)
     nom = models.CharField(unique=True, max_length=255)
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     remise = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
+    photo = models.ImageField(upload_to='uploads/parfum/')    
+    
+    def save(self, *args, **kwargs):
+        if not self.code:
+            # Find the latest code in the database
+            latest_code = Parfum.objects.order_by('-id_parfum').first()
+            if latest_code:
+                latest_code = latest_code.code
+                # Extract the numeric part of the code and increment it
+                code_number = int(''.join(filter(str.isdigit, latest_code)))
+                code_number += 1
+            else:
+                # If there are no existing instances, start with 0
+                code_number = 1
+
+            # Format the code and save it
+            self.code = f'PA{code_number:010d}'
+
+        super(Parfum, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'parfum'
