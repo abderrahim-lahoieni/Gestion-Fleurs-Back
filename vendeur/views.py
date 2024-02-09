@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from core.models import Commande,Magasin
-from core.api.serializers import CommandeSerializer 
+from core.models import Commande,Magasin,Fleur,Bouquet,Parfum
+from core.serializers import CommandeSerializer 
 from django.core.mail import send_mail
 
 @api_view(['PUT'])
@@ -42,7 +42,7 @@ def modifier_statut_commande(request, commande_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def commandes_par_statut(request, statut):
+def commandesEnattente(request):
     try:
         # Assurez-vous que l'utilisateur connecté est de type vendeur (type 2)
         user = request.user
@@ -51,7 +51,10 @@ def commandes_par_statut(request, statut):
                             status=status.HTTP_403_FORBIDDEN)
 
         # Obtenez les commandes avec le statut spécifié
-        commandes = Commande.objects.filter(statut=statut)
+        commandes = Commande.objects.filter(statut='En attente')
+
+        if not commandes.exists():
+            return Response({'message': 'Aucune commande n\'est en attente de livraison'})
 
         # Sérialisez les commandes
         serializer = CommandeSerializer(commandes, many=True)
@@ -113,3 +116,42 @@ def valider_rejeter_annulation(request, commande_id):
 
     except Exception as e:
         return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def FindProduct(request, code):
+    try:
+        # Assurez-vous que l'utilisateur connecté est authentifié et est un vendeur (type 2)
+        user = request.user
+
+        if user.type != 2:
+            return Response({'message': 'Vous n\'avez pas les permissions nécessaires'},
+                            status=status.HTTP_403_FORBIDDEN)
+        
+        product = None
+
+        # Vérifiez le préfixe du code et recherchez dans la table appropriée
+        if code.startswith('FL'):
+            product = Fleur.objects.get(code=code)
+        elif code.startswith('PF'):
+            product = Parfum.objects.get(code=code)
+        elif code.startswith('BQ'):
+            product = Bouquet.objects.get(code=code)
+        else:
+            return Response({'message': 'Code de produit invalide'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Si le produit est trouvé, renvoyez-le
+        if product:
+            return Response(product.nom)
+        else:
+            return Response({'message': 'Produit non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+
+    except Fleur.DoesNotExist:
+        return Response({'message': 'Produit non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+    except Parfum.DoesNotExist:
+        return Response({'message': 'Produit non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+    except Bouquet.DoesNotExist:
+        return Response({'message': 'Produit non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 

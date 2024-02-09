@@ -66,7 +66,8 @@ class Fichesoin(models.Model):
 
 
 class Fleur(models.Model):
-    id_fleur = models.AutoField(primary_key=True)    
+    id_fleur = models.AutoField(primary_key=True) 
+    code =models.CharField(max_length=255, unique=True, blank=True, null= True)   
     nom = models.CharField(max_length=255)
     origine = models.CharField(max_length=255, blank=True, null=True)
     prix = models.DecimalField(max_digits=10, decimal_places=2)
@@ -84,6 +85,22 @@ class Fleur(models.Model):
     ]
     categorie = models.IntegerField(choices=TYPE_CHOICES, default=FLEUR)
 
+    def __str__(self):
+        return f"{self.nom} de Catégorie {self.categorie}"
+    
+    def save(self, *args, **kwargs):
+        if not self.code:
+            latest_code = Fleur.objects.order_by('-id_fleur').first()
+            if latest_code:
+                latest_code = latest_code.code
+                code_number = int(''.join(filter(str.isdigit,latest_code)))
+                code_number += 1
+            else: 
+                code_number = 1
+
+            self.code = f'FL{code_number:010d}'
+
+        super(Fleur, self).save(*args, **kwargs) 
     class Meta:
         db_table = 'fleur'
         unique_together = (('nom', 'categorie'),)

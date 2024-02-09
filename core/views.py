@@ -10,24 +10,14 @@ from core.models import Utilisateur, Commande, Fleur, Bouquet, Parfum, LigneComm
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
-    # Analyser l'URL pour déterminer le type
-    path_parts = request.path.split('/')
-    if 'proprietaire' in path_parts:
-        type_utilisateur = 1
-    elif 'vendeur' in path_parts:
-        type_utilisateur = 2
-    elif 'abonne' in path_parts:
-        type_utilisateur = 3
-    else:
-        return Response({"error": "Type d'utilisateur non spécifié"}, status=status.HTTP_400_BAD_REQUEST)
-
+    
     # Récupérer les données de connexion depuis la requête
     username = request.data.get('username')
     password = request.data.get('password')
 
     # Rechercher l'utilisateur dans la base de données
     try:
-        utilisateur = Utilisateur.objects.get(username=username, type=type_utilisateur)
+        utilisateur = Utilisateur.objects.get(username=username)
     except Utilisateur.DoesNotExist:
         return Response({"error": "Données d'authentification incorrecte"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -103,6 +93,19 @@ def check_product_availability(type_produit, produit_id, quantite_demandee):
     # Si tout est en ordre, retournez None
     return None
 
+def update_product_quantity(type_produit, produit_id, quantite_commandee):
+    if type_produit == 'Fleur':
+        produit = Fleur.objects.get(id_fleur=produit_id)
+    elif type_produit == 'Bouquet':
+        produit = Bouquet.objects.get(id_parfum=produit_id)
+    elif type_produit == 'Parfum':
+        produit = Parfum.objects.get(id_bouquet=produit_id)
+    else:
+        raise ValueError("Type de produit non valide")
+
+    produit.qt_stock -= quantite_commandee
+    produit.save()
+
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated]) 
@@ -152,6 +155,8 @@ def add_Commande(request):
 
             if ligne_serializer.is_valid():
                 ligne_serializer.save()
+                update_product_quantity(ligne_data['type_produit'], ligne_data['produit_id'], ligne_data['quantite_commande'])
+
             else:
                 # Rollback: Delete the main order if a line order fails to save
                 commande.delete()
