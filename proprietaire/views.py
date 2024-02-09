@@ -7,6 +7,7 @@ from core.serializers import FleurSerializer,FichesoinSerializer, FamilleSeriali
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import api_view
+from rest_framework import generics
 
 # create and update
 @csrf_exempt
@@ -275,3 +276,28 @@ def deletParfum(request, id):
         response_data = {'status': 'error', 'message': f"Erreur lors du parfum. : {str(e)}"}
 
     return JsonResponse(response_data)
+
+
+class ParfumDetail(generics.RetrieveAPIView):
+    queryset = Parfum.objects.all()
+    serializer_class = ParfumSerializer
+
+class FleurDetail(generics.RetrieveAPIView):
+    queryset = Fleur.objects.all()
+    serializer_class = FleurSerializer
+
+class BouquetDetail(generics.RetrieveAPIView):
+    queryset = Bouquet.objects.all()
+    serializer_class = BouquetSerializer
+
+class FichesoinDetail(generics.RetrieveAPIView):
+    queryset = Fichesoin.objects.all()
+    serializer_class = FichesoinSerializer
+
+class MagasinDetail(generics.RetrieveAPIView):
+    queryset = Magasin.objects.all()
+    serializer_class = Magasinserializer
+
+class FamilleDetail(generics.RetrieveAPIView):
+    queryset = Famille.objects.all()
+    serializer_class = FamilleSerializer
