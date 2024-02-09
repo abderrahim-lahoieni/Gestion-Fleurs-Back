@@ -106,22 +106,16 @@ def contact_us(request):
             return Response({"error": "L'adresse e-mail du magasin est indisponible"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         sujet = 'Contact depuis le site web'
-
-        # Utilisation d'un template HTML pour le contenu de l'e-mail avec des styles CSS
-        context = {'nom': nom, 'prenom': prenom, 'email': email, 'message': message}
-        contenu_html = render_to_string('email_template.html', context)
-
-        # Conversion du contenu HTML en texte brut pour l'envoi par e-mail
-        contenu_texte = strip_tags(contenu_html)
+        contenu = f'Nom: {nom}\nPrénom: {prenom}\nEmail: {email}\n\nMessage:\n{message}'
 
         try:
             # Envoie de l'e-mail
-            send_mail(sujet, contenu_texte, email, [email_magasin], html_message=contenu_html)
+            send_mail(sujet, contenu, email, [email_magasin])
             return Response({"message": "Votre message a été envoyé avec succès"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": f"Une erreur s'est produite lors de l'envoi de l'e-mail: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return Response({"message": "Méthode non autorisée"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    return Response({"message": "Méthode non autorisée"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)      
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -136,7 +130,7 @@ def lister_commandes_abonne(request):
                             status=status.HTTP_403_FORBIDDEN)
 
         # Obtenez les commandes de l'abonné actuel
-        commandes_abonne = Commande.objects.filter(id_commandant=user).exclude(statut='livré')
+        commandes_abonne = Commande.objects.filter(id_commandant=user).exclude(statut='Livré')
 
         # Sérialisez les commandes
         serializer = CommandeSerializer(commandes_abonne, many=True)
