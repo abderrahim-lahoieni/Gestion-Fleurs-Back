@@ -1,6 +1,6 @@
 from django.urls import path
 from proprietaire import views
-from core.views import ParfumDetail, FleurDetail, BouquetDetail, FichesoinDetail, FamilleDetail, MagasinDetail
+from proprietaire.views import ParfumDetail, FleurDetail, BouquetDetail, FichesoinDetail, FamilleDetail, MagasinDetail
 
 app_name = 'Visiteur'
 urlpatterns = [

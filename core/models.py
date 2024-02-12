@@ -150,22 +150,33 @@ class Commande(models.Model):
     date_commande = models.DateField(auto_now_add=True)
     id_commandant = models.ForeignKey('Utilisateur', models.DO_NOTHING, db_column='id_commandant', blank=True, null=True)
     telephone = models.CharField(max_length=255, blank=True, null=True)
-    statut = models.CharField(max_length=255, blank=True, null=True)
     adresse_livraison = models.CharField(max_length=255, blank=True, null=True)
+    
+    STATUT_CHOICES = [
+        ('En attente', 'En attente'),
+        ('Livré', 'Livré'),
+    ]
+    statut = models.CharField(choices=STATUT_CHOICES, default='En attente', max_length=20)
 
     class Meta:
         db_table = 'commande'
+
 
 class LigneCommande(models.Model):
     id_lignecommande = models.AutoField(primary_key=True)    
     commande = models.ForeignKey(Commande, models.DO_NOTHING, blank=True, null=True)
     produit_id = models.IntegerField(blank=True, null=True)
-    type_produit = models.CharField(max_length=255, blank=True, null=True)
     quantite_commande = models.IntegerField(blank=True, null=True)
+    TYPE_CHOICES = [
+        ('FLEUR', 'Fleur'),
+        ('BOUQUET', 'Bouquet'),
+        ('PARFUM', 'Parfum')
+    ]
+    type_produit = models.CharField(choices=TYPE_CHOICES,default='FLEUR', max_length=255)
 
     class Meta:
         db_table = 'ligne_commande'
-        unique_together = (('commande', 'produit_id', 'type_produit'),)
+       # unique_together = (('commande', 'produit_id', 'type_produit'),)
 
 class Magasin(models.Model):
     id_magasin= models.AutoField(primary_key=True)    

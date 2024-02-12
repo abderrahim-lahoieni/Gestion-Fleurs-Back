@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from core.models import Commande, LigneCommande
+
+admin.site.register(Commande)
+admin.site.register(LigneCommande)

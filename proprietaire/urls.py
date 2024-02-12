@@ -1,6 +1,7 @@
 from django.urls import path, re_path
 from . import views
-from core.views import ParfumDetail, FleurDetail, BouquetDetail, FichesoinDetail, FamilleDetail, MagasinDetail
+from .views import ParfumDetail, FleurDetail, BouquetDetail, FichesoinDetail, FamilleDetail, MagasinDetail
+#,FleursLesPlusVenduesAPIView
 
 app_name = 'proprietaire'
 urlpatterns = [
@@ -40,7 +41,11 @@ urlpatterns = [
     path('bouquet/<int:pk>/', BouquetDetail.as_view(), name='bouquet-detail'),
     path('fichesoin/<int:pk>/', FichesoinDetail.as_view(), name='fichesoin-detail'),          
     path('famille/<int:pk>/', FamilleDetail.as_view(), name='famille-detail'),          
-    path('magasin/<int:pk>/', MagasinDetail.as_view(), name='magasin-detail'),          
+    path('magasin/<int:pk>/', MagasinDetail.as_view(), name='magasin-detail'),
+
+
+    #path('fleur/most_solded/', FleursLesPlusVenduesAPIView.as_view(), name='magasin-detail'),          
+    path('fleur/most_solded/', views.fleurs_plus_vendues, name='most_solded_fleurs'),  
 
 
 ]

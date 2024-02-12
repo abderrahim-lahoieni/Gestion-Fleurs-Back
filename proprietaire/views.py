@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from core.models import Fleur, Famille,Fichesoin, Magasin, Parfum, Bouquet
+from core.models import Fleur, Famille,Fichesoin, Magasin, Parfum, Bouquet, LigneCommande
 from .forms import FleurForm,FichesoinForm, FamilleForm, MagasinForm, ParfumForm, BouquetForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import api_view
 from rest_framework import generics
+from django.db.models import Sum
+
 
 # create and update
 @csrf_exempt
@@ -301,3 +303,31 @@ class MagasinDetail(generics.RetrieveAPIView):
 class FamilleDetail(generics.RetrieveAPIView):
     queryset = Famille.objects.all()
     serializer_class = FamilleSerializer
+
+
+
+def fleurs_plus_vendues(request):
+    # Requête pour obtenir les fleurs les plus vendues en termes de quantité vendue
+    fleurs_plus_vendues = (LigneCommande.objects
+                           .filter(type_produit='FLEUR')  # Filtrer seulement les lignes de commande pour les fleurs
+                           .values('produit_id')  # Regrouper par produit ID
+                           .annotate(total_vendu=Sum('quantite_commande'))  # Calculer la somme des quantités vendues
+                           .order_by('-total_vendu')[:10])  # Trier par quantité vendue décroissante, limiter à 10
+
+    # Récupérer les instances de fleur correspondant aux ID obtenus, en conservant l'ordre des ID des plus vendues au moins vendues
+    fleurs_ids = [item['produit_id'] for item in fleurs_plus_vendues]
+    fleurs = list(Fleur.objects.filter(id_fleur__in=fleurs_ids))
+
+    # Créer une structure de données pour la réponse JSON, triée par les quantités vendues
+    fleurs_data = []
+    for fleur_id in fleurs_ids:
+        fleur = next((f for f in fleurs if f.id_fleur == fleur_id), None)
+        if fleur:
+            fleurs_data.append({
+                'nom': fleur.nom,
+                'photo': fleur.photo.url if fleur.photo else None,  # Récupérer l'URL de la photo si elle existe, sinon None
+                'prix': fleur.prix,
+                #'quantite_vendue': next(item['total_vendu'] for item in fleurs_plus_vendues if item['produit_id'] == fleur_id)
+            })
+
+    return JsonResponse(fleurs_data, safe=False)
